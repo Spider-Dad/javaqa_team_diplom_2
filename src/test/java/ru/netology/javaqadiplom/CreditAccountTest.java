@@ -45,173 +45,177 @@ public class CreditAccountTest {
     }
 
     @Test
-    public void ifCreditRateIsOne() {
-        CreditAccount account = new CreditAccount(
-                1_000_000,
-                15_000,
-                1
-        );
-        account.add(1);
-        assertEquals(1, account.getBalance());
-
-    }
-
-    @Test
-    public void ifCreditRateIs99() {
-        CreditAccount account = new CreditAccount(
-                1_000_000,
-                15_000,
-                99
-        );
-        account.add(1);
-        assertEquals(1, account.getBalance());
-    }
-
-
-    @Test
-    public void testPayTheBillPositiveBalance() {
-
-        int initialBalance = 1_000_000;
+    void creatingCreditAccountWithValidParametersShouldSucceed() {
+        // Arrange
+        int initialBalance = 10000;
         int creditLimit = 1000;
-        int amount = 200;
+        int rate = 10;
 
-        CreditAccount account = new CreditAccount(initialBalance, creditLimit, 10);
+        // Act
+        CreditAccount creditAccount = new CreditAccount(initialBalance, creditLimit, rate);
 
-
-        boolean result = account.pay(amount);
-
-
-        assertTrue(result);
-        assertEquals(initialBalance - amount, account.getBalance());
-
-
+        // Assert
+        assertEquals(initialBalance, creditAccount.getBalance());
+        assertEquals(creditLimit, creditAccount.getCreditLimit());
+        assertEquals(rate, creditAccount.getRate());
     }
 
     @Test
-    public void testPayTheBillZeroBalance() {
+    void creatingCreditAccountWithNegativeCreditLimitShouldThrowException() {
+        // Arrange
+        int initialBalance = 0;
+        int creditLimit = -1000;
+        int rate = 10;
 
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            new CreditAccount(initialBalance, creditLimit, rate);
+        });
+    }
+
+    @Test
+    void creatingCreditAccountWithZeroRateShouldThrowException() {
+        // Arrange
         int initialBalance = 0;
         int creditLimit = 1000;
-        int amount = 200;
+        int zeroRate = 0;
+        int negativeRate = -5;
+
+        // Act & Assert
+        assertAll("creatingCreditAccountWithZeroOrNegativeRateShouldThrowException",
+                () -> assertThrows(IllegalArgumentException.class, () -> {
+                    new CreditAccount(initialBalance, creditLimit, zeroRate);
+                }, "Zero rate should throw IllegalArgumentException."),
+                () -> assertThrows(IllegalArgumentException.class, () -> {
+                    new CreditAccount(initialBalance, creditLimit, negativeRate);
+                }, "Negative rate should throw IllegalArgumentException.")
+        );
+    }
+
+    @Test
+    void initialBalanceShouldBeCorrect() {
+        // Arrange
+        int initialBalance = 10000;
+        int creditLimit = 1000;
+        int rate = 10;
+        CreditAccount creditAccount = new CreditAccount(initialBalance, creditLimit, rate);
+
+        // Act & Assert
+        assertEquals(initialBalance, creditAccount.getBalance());
+    }
+
+
+    @Test
+    public void testValidPayment() {
+        int initialBalance = 10_000;
+        int creditLimit = 15_000;
+        int amount = 1000;
 
         CreditAccount account = new CreditAccount(initialBalance, creditLimit, 10);
-
-
-        boolean result = account.pay(amount);
-
-
+        boolean result = account.pay(1000);
         assertTrue(result);
-        assertEquals(initialBalance - amount, account.getBalance());
+        assertEquals(9000, account.getBalance());
     }
 
 
     @Test
-    public void testPayTheBillExceedingBalance() {
-
+    public void testNegativePaymentAmount() {
         int initialBalance = 10_000;
-        int creditLimit = 1000;
-        int amount = 1200;
+        int creditLimit = 15_000;
+        int amount = -1000;
+
+        CreditAccount account = new CreditAccount(initialBalance, creditLimit, 10);
+        boolean result = account.pay(-1000);
+        assertFalse(result);
+        assertEquals(10000, account.getBalance());
+    }
+
+
+    @Test
+    public void testCreditLimitExceeded() {
+        int initialBalance = 10_000;
+        int creditLimit = 15_000;
+        int amount = 25000;
 
         CreditAccount account = new CreditAccount(initialBalance, creditLimit, 10);
 
-        boolean result = account.pay(amount);
-
+        boolean result = account.pay(25000);
         assertFalse(result);
-        assertEquals(initialBalance, account.getBalance());
+        assertEquals(10000, account.getBalance());
     }
 
     @Test
-    public void testPayTheBillNegativeAmount() {
+    public void testPauTheBillInsufficientFunds() {
         int initialBalance = 10_000;
         int creditLimit = 1000;
-        int amount = -200;
+        int amount = 11000;
 
         CreditAccount account = new CreditAccount(initialBalance, creditLimit, 10);
 
 
-        boolean result = account.pay(amount);
-
-
+        boolean result = account.pay(11000);
         assertFalse(result);
-        assertEquals(initialBalance, account.getBalance());
+        assertEquals(10000, account.getBalance());
+
     }
 
     @Test
     public void testPayTheBillNegativeBalance() {
         int initialBalance = -10_000;
         int creditLimit = 1000;
-        int amount = 200;
 
         CreditAccount account = new CreditAccount(initialBalance, creditLimit, 10);
 
-
-        boolean result = account.pay(amount);
-
-
+        boolean result = account.pay(200);
         assertFalse(result);
-        assertEquals(initialBalance, account.getBalance());
+        assertEquals(10000, account.getBalance());
     }
 
+
     @Test
-    public void testAddFundsWithValidAmount() {
-        int initialBalance = 100_000;
-        int creditLimit = 15_000;
-        int amountToAdd = 50;
+    public void testAddWithValidAmount() {
+        int initialBalance = 10_000;
+        int creditLimit = 1000;
 
         CreditAccount account = new CreditAccount(initialBalance, creditLimit, 10);
-        account.setBalance(initialBalance);
-        boolean success = account.addFunds(amountToAdd);
-        assertTrue(success);
-        assertEquals(initialBalance + amountToAdd, account.getBalance(), 0.001);
+        assertTrue(account.add(2000));
+        assertEquals(12000, account.getBalance());
     }
 
     @Test
-    public void testAddFundsWithNegativeAmount() {
-        int initialBalance = 100_000;
-        int creditLimit = 15_000;
-        int amountToAdd = -50;
-
+    public void testAddWithNegativeAmount() {
+        int initialBalance = 10_000;
+        int creditLimit = 1000;
         CreditAccount account = new CreditAccount(initialBalance, creditLimit, 10);
-        account.setBalance(initialBalance);
-        boolean success = account.addFunds(amountToAdd);
-        assertFalse(success);
-        assertEquals(initialBalance + amountToAdd, account.getBalance(), 0.001);
+        assertTrue(account.add(-2000));
+        assertEquals(10000, account.getBalance());
     }
 
     @Test
-    public void testAddFundsExceedLimit() {
-        int initialBalance = 100_000;
-        int creditLimit = 15_000;
-        int amountToAdd = 110_000;
-
+    public void testAddWithZeroAmount() {
+        int initialBalance = 10_000;
+        int creditLimit = 1000;
         CreditAccount account = new CreditAccount(initialBalance, creditLimit, 10);
-        account.setBalance(initialBalance);
-        boolean success = account.addFunds(amountToAdd);
-        assertFalse(success);
-        assertEquals(initialBalance + amountToAdd, account.getBalance(), 0.001);
+        assertFalse(account.add(0));
+        assertEquals(10000, account.getBalance());
     }
-
     @Test
-    public void testNegativeBalanceItsRate() {
-        int initialBalance = -200;
-        int creditLimit = 15_000;
-        int rate = 15;
+    public void testYearChange() {
+        CreditAccount account = new CreditAccount(-200, 15, 0);
+        assertEquals(-30, account.yearChange());
 
-        CreditAccount account = new CreditAccount(initialBalance, creditLimit, 15);
-        int expectedInterest = -30;
-        assertEquals(expectedInterest, account.calculateYearlyInterest(rate));
+        account = new CreditAccount(200, 15, 0);
+        assertEquals(0, account.yearChange());
     }
-
     @Test
-    public void testPositiveBalanceItsRate() {
-        int initialBalance = 200;
-        int creditLimit = 15_000;
-        int rate = 15;
+    public void testGetCreditLimit() {
+        CreditAccount account = new CreditAccount(-200, 15, 0);
+        assertEquals(0, account.getCreditLimit());
 
-        CreditAccount account = new CreditAccount(initialBalance, creditLimit, 15);
-        int expectedInterest = 0;
-        assertEquals(expectedInterest, account.calculateYearlyInterest(rate));
+        account = new CreditAccount(200, 15, 100);
+        assertEquals(100, account.getCreditLimit());
     }
+
 
 }
 

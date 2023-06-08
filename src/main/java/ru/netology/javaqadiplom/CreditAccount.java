@@ -88,16 +88,5 @@ public class CreditAccount extends Account {
         return creditLimit;
     }
 
-    public void setBalance(double initialBalance) {
 
-    }
-
-    public boolean addFunds(double amountToAdd) {
-        return false;
-
-    }
-
-    public int calculateYearlyInterest(int rate) {
-        return rate;
-    }
 }
