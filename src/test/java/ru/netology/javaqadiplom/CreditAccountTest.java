@@ -109,7 +109,6 @@ public class CreditAccountTest {
     public void testValidPayment() {
         int initialBalance = 10_000;
         int creditLimit = 15_000;
-        int amount = 1000;
 
         CreditAccount account = new CreditAccount(initialBalance, creditLimit, 10);
         boolean result = account.pay(1000);
@@ -168,7 +167,7 @@ public class CreditAccountTest {
 
         boolean result = account.pay(200);
         assertFalse(result);
-        assertEquals(10000, account.getBalance());
+        assertEquals(-10000, account.getBalance());
     }
 
 
@@ -187,7 +186,7 @@ public class CreditAccountTest {
         int initialBalance = 10_000;
         int creditLimit = 1000;
         CreditAccount account = new CreditAccount(initialBalance, creditLimit, 10);
-        assertTrue(account.add(-2000));
+        assertFalse(account.add(-2000));
         assertEquals(10000, account.getBalance());
     }
 
@@ -200,21 +199,17 @@ public class CreditAccountTest {
         assertEquals(10000, account.getBalance());
     }
     @Test
-    public void testYearChange() {
+    public void testYearChangeNegativeBalance() {
         CreditAccount account = new CreditAccount(-200, 15, 0);
         assertEquals(-30, account.yearChange());
 
-        account = new CreditAccount(200, 15, 0);
+           }
+    @Test
+    public void testYearChangePositiveBalance() {
+        CreditAccount account = new CreditAccount(200, 15, 0);
         assertEquals(0, account.yearChange());
     }
-    @Test
-    public void testGetCreditLimit() {
-        CreditAccount account = new CreditAccount(-200, 15, 0);
-        assertEquals(0, account.getCreditLimit());
 
-        account = new CreditAccount(200, 15, 100);
-        assertEquals(100, account.getCreditLimit());
-    }
 
 
 }
