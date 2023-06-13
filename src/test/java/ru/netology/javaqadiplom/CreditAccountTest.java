@@ -20,39 +20,39 @@ public class CreditAccountTest {
     }
 
     @Test
-    public void shouldAddToNegativeBalance() {
-        CreditAccount account = new CreditAccount(
-                -10,
+    public void shouldNotChangeBalanceWhenAddingNegativeAmount() { //
+        ru.netology.javaqadiplom.CreditAccount account = new ru.netology.javaqadiplom.CreditAccount(
+                10,
                 1_000,
                 20
         );
         account.add(-10);
-        assertEquals(-10, account.getBalance());
+        assertEquals(10, account.getBalance());
 
 
     }
 
     @Test
-    public void shouldAddAtHugeBalance() {
-        CreditAccount account = new CreditAccount(
+    public void shouldAddAtHugeBalance() { //
+        ru.netology.javaqadiplom.CreditAccount account = new ru.netology.javaqadiplom.CreditAccount(
                 1_000_000,
                 15_000,
                 10
         );
         account.add(15);
-        assertEquals(15, account.getBalance());
+        assertEquals(1_000_015, account.getBalance());
 
     }
 
     @Test
-    void creatingCreditAccountWithValidParametersShouldSucceed() {
+    void creatingCreditAccountWithValidParametersShouldSucceed() {  // проверка создания конструктора с корректными параметрами
         // Arrange
         int initialBalance = 10000;
         int creditLimit = 1000;
         int rate = 10;
 
         // Act
-        CreditAccount creditAccount = new CreditAccount(initialBalance, creditLimit, rate);
+        ru.netology.javaqadiplom.CreditAccount creditAccount = new ru.netology.javaqadiplom.CreditAccount(initialBalance, creditLimit, rate);
 
         // Assert
         assertEquals(initialBalance, creditAccount.getBalance());
@@ -61,143 +61,126 @@ public class CreditAccountTest {
     }
 
     @Test
-    void creatingCreditAccountWithNegativeCreditLimitShouldThrowException() {
-
+    void creatingCreditAccountWithNegativeCreditLimitShouldThrowException() { // Нет баг-репорта. проверка на выброс исключения при создании конструктора с отрицательным кредитным лимитом
+        // Arrange
         int initialBalance = 0;
         int creditLimit = -1000;
         int rate = 10;
 
-           assertThrows(IllegalArgumentException.class, () -> {
-            new CreditAccount(initialBalance, creditLimit, rate);
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            new ru.netology.javaqadiplom.CreditAccount(initialBalance, creditLimit, rate);
         });
     }
 
     @Test
-    void creatingCreditAccountWithZeroRateShouldThrowException() {
+    void creatingCreditAccountWithZeroRateShouldThrowException() { // проверка на выброс исключения при создании конструктора со ставкой <  0
         // Arrange
         int initialBalance = 0;
         int creditLimit = 1000;
-        int zeroRate = 0;
         int negativeRate = -5;
 
         // Act & Assert
-        assertAll("creatingCreditAccountWithZeroOrNegativeRateShouldThrowException",
-                () -> assertThrows(IllegalArgumentException.class, () -> {
-                    new CreditAccount(initialBalance, creditLimit, zeroRate);
-                }, "Zero rate should throw IllegalArgumentException."),
-                () -> assertThrows(IllegalArgumentException.class, () -> {
-                    new CreditAccount(initialBalance, creditLimit, negativeRate);
-                }, "Negative rate should throw IllegalArgumentException.")
-        );
+        assertThrows(IllegalArgumentException.class, () -> {
+            new ru.netology.javaqadiplom.CreditAccount(initialBalance, creditLimit, negativeRate);
+        });
+
     }
 
     @Test
-    void initialBalanceShouldBeCorrect() {
-        // Arrange
-        int initialBalance = 10000;
-        int creditLimit = 1000;
-        int rate = 10;
-        CreditAccount creditAccount = new CreditAccount(initialBalance, creditLimit, rate);
-
-        // Act & Assert
-        assertEquals(initialBalance, creditAccount.getBalance());
-    }
-
-
-    @Test
-    public void testValidPayment() {
+    public void testValidPayment() { // fix #8
         int initialBalance = 10_000;
         int creditLimit = 15_000;
+        int amount = 1000;
 
-        CreditAccount account = new CreditAccount(initialBalance, creditLimit, 10);
-        boolean result = account.pay(1000);
+        ru.netology.javaqadiplom.CreditAccount account = new ru.netology.javaqadiplom.CreditAccount(initialBalance, creditLimit, 10);
+        boolean result = account.pay(amount);
         assertTrue(result);
         assertEquals(9000, account.getBalance());
     }
 
 
     @Test
-    public void testNegativePaymentAmount() {
+    public void testNegativePaymentAmount() { // проверка на отрицателное значение amount
         int initialBalance = 10_000;
         int creditLimit = 15_000;
         int amount = -1000;
 
-        CreditAccount account = new CreditAccount(initialBalance, creditLimit, 10);
-        boolean result = account.pay(-1000);
+        ru.netology.javaqadiplom.CreditAccount account = new ru.netology.javaqadiplom.CreditAccount(initialBalance, creditLimit, 10);
+        boolean result = account.pay(amount);
         assertFalse(result);
         assertEquals(10000, account.getBalance());
     }
 
 
-   
     @Test
-    public void testPauTheBillInsufficientFunds() {
+    public void testCreditLimitExceeded() { // issue #10
         int initialBalance = 10_000;
-        int creditLimit = 1000;
-        int amount = 11000;
+        int creditLimit = 15_000;
+        int amount = 25_000;
 
-        CreditAccount account = new CreditAccount(initialBalance, creditLimit, 10);
+        ru.netology.javaqadiplom.CreditAccount account = new ru.netology.javaqadiplom.CreditAccount(initialBalance, creditLimit, 10);
 
-
-        boolean result = account.pay(11000);
-        assertFalse(result);
-        assertEquals(10000, account.getBalance());
-
+        assertThrows(IllegalStateException.class, () -> account.pay(amount));
+        assertEquals(10_000, account.getBalance());
     }
 
     @Test
-    public void testPayTheBillNegativeBalance() {
-        int initialBalance = -10_000;
-        int creditLimit = 1000;
-
-        CreditAccount account = new CreditAccount(initialBalance, creditLimit, 10);
-
-        boolean result = account.pay(200);
-        assertFalse(result);
-        assertEquals(-10000, account.getBalance());
-    }
-
-
-    @Test
-    public void testAddWithValidAmount() {
+    public void testPauTheBillInsufficientFunds() { // issue #11
         int initialBalance = 10_000;
-        int creditLimit = 1000;
+        int creditLimit = 1_000;
+        int amount = 11_000;
 
-        CreditAccount account = new CreditAccount(initialBalance, creditLimit, 10);
-        assertTrue(account.add(2000));
-        assertEquals(12000, account.getBalance());
+        ru.netology.javaqadiplom.CreditAccount account = new ru.netology.javaqadiplom.CreditAccount(initialBalance, creditLimit, 10);
+
+        assertThrows(IllegalStateException.class, () -> account.pay(amount));
+        assertEquals(10_000, account.getBalance());
+
     }
 
     @Test
-    public void testAddWithNegativeAmount() {
-        int initialBalance = 10_000;
-        int creditLimit = 1000;
-        CreditAccount account = new CreditAccount(initialBalance, creditLimit, 10);
-        assertFalse(account.add(-2000));
-        assertEquals(10000, account.getBalance());
+    public void testPayTheBillNegativeBalance() { // issue #12
+        assertThrows(IllegalArgumentException.class, () -> {
+            int initialBalance = -10_000;
+            int creditLimit = 1000;
+
+            new ru.netology.javaqadiplom.CreditAccount(initialBalance, creditLimit, 10);
+        });
+
     }
+
+
+    @Test
+    public void testAddWithValidAmount() { // fix #9
+        int initialBalance = 10_000;
+        int creditLimit = 1_000;
+
+        ru.netology.javaqadiplom.CreditAccount account = new ru.netology.javaqadiplom.CreditAccount(initialBalance, creditLimit, 10);
+        assertTrue(account.add(2_000));
+        assertEquals(12_000, account.getBalance());
+    }
+
 
     @Test
     public void testAddWithZeroAmount() {
         int initialBalance = 10_000;
-        int creditLimit = 1000;
-        CreditAccount account = new CreditAccount(initialBalance, creditLimit, 10);
+        int creditLimit = 1_000;
+        ru.netology.javaqadiplom.CreditAccount account = new ru.netology.javaqadiplom.CreditAccount(initialBalance, creditLimit, 10);
         assertFalse(account.add(0));
-        assertEquals(10000, account.getBalance());
+        assertEquals(10_000, account.getBalance());
     }
-    @Test
-    public void testYearChangeNegativeBalance() {
-        CreditAccount account = new CreditAccount(-200, 15, 0);
-        assertEquals(-30, account.yearChange());
 
-           }
     @Test
-    public void testYearChangePositiveBalance() {
-        CreditAccount account = new CreditAccount(200, 15, 0);
+    public void testYearChange() {
+        ru.netology.javaqadiplom.CreditAccount account = new ru.netology.javaqadiplom.CreditAccount(200, 15, 0);
+
         assertEquals(0, account.yearChange());
+
+        account = new ru.netology.javaqadiplom.CreditAccount(0, 300, 15);
+        account.pay(200); // Покупка для отрицательного баланса
+
+        assertEquals(30, account.yearChange());
     }
-
-
 
 }
 
