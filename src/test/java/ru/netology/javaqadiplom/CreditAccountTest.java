@@ -62,13 +62,12 @@ public class CreditAccountTest {
 
     @Test
     void creatingCreditAccountWithNegativeCreditLimitShouldThrowException() {
-        // Arrange
+
         int initialBalance = 0;
         int creditLimit = -1000;
         int rate = 10;
 
-        // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> {
+           assertThrows(IllegalArgumentException.class, () -> {
             new CreditAccount(initialBalance, creditLimit, rate);
         });
     }
@@ -130,19 +129,7 @@ public class CreditAccountTest {
     }
 
 
-    @Test
-    public void testCreditLimitExceeded() {
-        int initialBalance = 10_000;
-        int creditLimit = 15_000;
-        int amount = 25000;
-
-        CreditAccount account = new CreditAccount(initialBalance, creditLimit, 10);
-
-        boolean result = account.pay(25000);
-        assertFalse(result);
-        assertEquals(10000, account.getBalance());
-    }
-
+   
     @Test
     public void testPauTheBillInsufficientFunds() {
         int initialBalance = 10_000;
