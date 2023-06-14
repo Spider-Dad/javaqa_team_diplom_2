@@ -90,6 +90,8 @@ public class SavingAccountTest {
 
         Assertions.assertTrue(result);
         Assertions.assertEquals(5_000 - 4_000, account.getBalance());
+        Assertions.assertEquals(1_000, account.getMinBalance());
+        Assertions.assertEquals(10_000, account.getMaxBalance());
     }
 
     @Test
@@ -120,6 +122,8 @@ public class SavingAccountTest {
 
         Assertions.assertFalse(result);
         Assertions.assertEquals(1_000, account.getBalance());
+        Assertions.assertEquals(1_000, account.getMinBalance());
+        Assertions.assertEquals(10_000, account.getMaxBalance());
     }
 
     @Test
