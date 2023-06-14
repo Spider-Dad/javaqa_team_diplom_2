@@ -3,6 +3,7 @@ package ru.netology.javaqadiplom;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+
 public class SavingAccountTest {
 
     @Test
@@ -137,3 +138,6 @@ public class SavingAccountTest {
         Assertions.assertThrows(IllegalArgumentException.class, () -> new SavingAccount(15_000,1_000,10_000,5));
     }
 }
+
+
+
